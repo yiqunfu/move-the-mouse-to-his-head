@@ -16,7 +16,7 @@ def detect_heads(image_bgr, resize_factor=1.0):
     frame = image_bgr
     scale = 1.0
     if resize_factor != 1.0:
-        frame = cv2.resize(image_bgr, (0, 0), fx=resize_factor, fy=resize_factor)
+        frame = cv2.resize(image_bgr, (0, 0), fx=resize_factor, fy=resize_factor, interpolation=cv2.INTER_LINEAR)
         scale = 1.0 / resize_factor
 
     rects, _ = _HOG.detectMultiScale(frame, winStride=(8, 8), padding=(8, 8), scale=1.05)

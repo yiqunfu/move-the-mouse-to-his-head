@@ -1,5 +1,6 @@
 import os
 import time
+import threading
 import cv2
 import numpy as np
 import pyautogui
@@ -13,6 +14,7 @@ DEFAULT_SLEEP = float(os.getenv("MTM_SLEEP", "0.02"))
 DEFAULT_MOVE_DURATION = float(os.getenv("MTM_MOVE_DURATION", "0.02"))
 
 _running = False
+_lock = threading.Lock()
 
 
 def move_mouse_to(point):
@@ -28,18 +30,30 @@ def capture_screen():
 
 def run_detection_loop():
     global _running
-    _running = True
-    while _running:
-        frame = capture_screen()
-        head_center = find_head_center_from_frame(frame, resize_factor=DEFAULT_RESIZE)
-        if head_center:
-            move_mouse_to(head_center)
-        time.sleep(DEFAULT_SLEEP)
+    with _lock:
+        if _running:
+            return
+        _running = True
+
+    try:
+        while True:
+            with _lock:
+                if not _running:
+                    break
+            frame = capture_screen()
+            head_center = find_head_center_from_frame(frame, resize_factor=DEFAULT_RESIZE)
+            if head_center:
+                move_mouse_to(head_center)
+            time.sleep(DEFAULT_SLEEP)
+    finally:
+        with _lock:
+            _running = False
 
 
 def stop_detection_loop():
     global _running
-    _running = False
+    with _lock:
+        _running = False
 
 
 def main():

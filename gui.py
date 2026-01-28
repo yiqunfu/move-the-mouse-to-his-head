@@ -44,13 +44,23 @@ class ControlGUI(tk.Tk):
         except Exception as exc:
             self.status_var.set("Error")
             messagebox.showerror("Error", str(exc))
+        finally:
+            # Ensure UI resets even if loop exits naturally
             self.stop_btn.config(state=tk.DISABLED)
             self.start_btn.config(state=tk.NORMAL)
+            if self.status_var.get() != "Error":
+                self.status_var.set("Stopped")
 
     def stop(self):
         stop_detection_loop()
-        self.status_var.set("Stopped")
+        self.status_var.set("Stopping...")
         self.stop_btn.config(state=tk.DISABLED)
+        self.start_btn.config(state=tk.DISABLED)
+        self.after(100, self._wait_until_stopped)
+
+    def _wait_until_stopped(self):
+        # Detection loop clears running flag; just re-enable UI.
+        self.status_var.set("Stopped")
         self.start_btn.config(state=tk.NORMAL)
 
     def on_exit(self):

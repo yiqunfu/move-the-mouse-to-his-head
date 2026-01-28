@@ -29,3 +29,5 @@ python gui.py
 - `MTM_SLEEP`：循环休眠时间，默认 `0.02` 秒
 - `MTM_MOVE_DURATION`：鼠标移动耗时，默认 `0.02` 秒
 - `MTM_FAILSAFE`: 设置为 `1` 启用 pyautogui failsafe
+
+注意：GUI 的 Start/Stop 已加防抖和安全停止，避免多次启动和线程未退出导致的异常。

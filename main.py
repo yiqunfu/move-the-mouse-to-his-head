@@ -12,6 +12,8 @@ DEFAULT_RESIZE = float(os.getenv("MTM_RESIZE", "0.75"))
 DEFAULT_SLEEP = float(os.getenv("MTM_SLEEP", "0.02"))
 DEFAULT_MOVE_DURATION = float(os.getenv("MTM_MOVE_DURATION", "0.02"))
 
+_running = False
+
 
 def move_mouse_to(point):
     x, y = point
@@ -24,18 +26,30 @@ def capture_screen():
     return frame
 
 
+def run_detection_loop():
+    global _running
+    _running = True
+    while _running:
+        frame = capture_screen()
+        head_center = find_head_center_from_frame(frame, resize_factor=DEFAULT_RESIZE)
+        if head_center:
+            move_mouse_to(head_center)
+        time.sleep(DEFAULT_SLEEP)
+
+
+def stop_detection_loop():
+    global _running
+    _running = False
+
+
 def main():
     print("Starting head aiming. Press Ctrl+C to stop.")
     time.sleep(1)
     try:
-        while True:
-            frame = capture_screen()
-            head_center = find_head_center_from_frame(frame, resize_factor=DEFAULT_RESIZE)
-            if head_center:
-                move_mouse_to(head_center)
-            time.sleep(DEFAULT_SLEEP)
+        run_detection_loop()
     except KeyboardInterrupt:
         print("Stopped.")
+        stop_detection_loop()
 
 
 if __name__ == "__main__":

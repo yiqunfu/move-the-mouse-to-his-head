@@ -1,15 +1,19 @@
 import cv2
 import numpy as np
 
+
 def _build_hog_detector():
     # Use default people detector and focus on head by cropping detections
     hog = cv2.HOGDescriptor()
     hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
     return hog
 
+
+_HOG = _build_hog_detector()
+
+
 def detect_heads(image_bgr):
-    hog = _build_hog_detector()
-    rects, _ = hog.detectMultiScale(image_bgr, winStride=(8, 8), padding=(8, 8), scale=1.05)
+    rects, _ = _HOG.detectMultiScale(image_bgr, winStride=(8, 8), padding=(8, 8), scale=1.05)
     heads = []
     for (x, y, w, h) in rects:
         # Approximate head region as top quarter of detection
